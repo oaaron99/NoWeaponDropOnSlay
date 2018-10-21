@@ -12,9 +12,7 @@
 int g_iHurtCounter[MAXPLAYERS+1];
 
 public Plugin myinfo = 
-{
-	//TODO: Rename to NoWeaponDropOnSlay.smx
-	
+{	
 	name = "No Weapon Drop On Slay",
 	author = "Extacy",
 	description = "Deletes weapons from a CT if they suicide. Does not drop if they were in recent combat",
