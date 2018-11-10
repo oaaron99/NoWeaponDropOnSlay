@@ -20,7 +20,6 @@ public Plugin myinfo =
 	url = "https://steamcommunity.com/profiles/76561198183032322"
 };
 
-
 public void OnPluginStart ()
 {
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Pre);
@@ -55,7 +54,9 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 public Action BlockKill(int client, int args)
 {
 	if (g_iHurtCounter[client] == 0 && GetClientTeam(client) == CS_TEAM_CT)
+	{
 		RemoveWeapon(client);
+	}
 		
 	return Plugin_Continue;
 }
