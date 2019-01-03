@@ -9,7 +9,7 @@
 #define	CS_TEAM_T	2
 #define	CS_TEAM_CT	3
 
-int g_iHurtCounter[MAXPLAYERS + 1];
+bool g_bInCombat[MAXPLAYERS + 1];
 
 public Plugin myinfo = 
 {
@@ -22,18 +22,18 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	RegConsoleCmd("kill", BlockKill);
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Pre);
 }
 
 public void OnClientPutInServer(int client)
 {
-	RegConsoleCmd("kill", BlockKill);
-	g_iHurtCounter[client] = 0;
+	g_bInCombat[client] = false;
 }
 
 public Action Timer_DecreaseCount(Handle timer, any client)
 {
-	g_iHurtCounter[client]--;
+	g_bInCombat[client] = false;
 	return Plugin_Stop;
 }
 
@@ -44,14 +44,14 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 	
 	if (GetClientTeam(client) == CS_TEAM_CT && GetClientTeam(attackerClient) == CS_TEAM_T)
 	{
-		g_iHurtCounter[client]++;
+		g_bInCombat[client] = true;
 		CreateTimer(5.0, Timer_DecreaseCount, client);
 	}
 }
 
 public Action BlockKill(int client, int args)
 {
-	if (g_iHurtCounter[client] == 0 && GetClientTeam(client) == CS_TEAM_CT)
+	if (!g_bInCombat[client] && GetClientTeam(client) == CS_TEAM_CT)
 	{
 		RemoveWeapon(client);
 	}
