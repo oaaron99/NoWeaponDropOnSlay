@@ -9,7 +9,7 @@
 #define	CS_TEAM_T	2
 #define	CS_TEAM_CT	3
 
-bool g_bHurtRecent[MAXPLAYERS + 1];
+bool g_bInCombat[MAXPLAYERS + 1];
 
 public Plugin myinfo = 
 {
@@ -28,7 +28,13 @@ public void OnPluginStart()
 
 public void OnClientPutInServer(int client)
 {
-	g_bHurtRecent[client] = false;
+	g_bInCombat[client] = false;
+}
+
+public Action Timer_DecreaseCount(Handle timer, any client)
+{
+	g_bInCombat[client] = false;
+	return Plugin_Stop;
 }
 
 public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
@@ -43,8 +49,8 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 	
 	if (GetClientTeam(client) == CS_TEAM_CT && GetClientTeam(attackerClient) == CS_TEAM_T)
 	{
-		g_bHurtRecent[client] = true;
-		CreateTimer(5.0, Timer_HurtDelay, GetClientUserId(client));
+		g_bInCombat[client] = true;
+		CreateTimer(5.0, Timer_HurtDelay, client);
 	}
 	
 	return Plugin_Continue;
@@ -56,7 +62,7 @@ public Action Timer_HurtDelay(Handle timer, any userid)
 
 	if (client && IsClientInGame(client))
 	{
-		g_bHurtRecent[client] = false;
+		g_bInCombat[client] = false;
 	}
 
 	return Plugin_Stop;
@@ -64,7 +70,7 @@ public Action Timer_HurtDelay(Handle timer, any userid)
 
 public Action BlockKill(int client, int args)
 {
-	if (!g_bHurtRecent[client] && GetClientTeam(client) == CS_TEAM_CT)
+	if (!g_bInCombat[client] && GetClientTeam(client) == CS_TEAM_CT)
 	{
 		RemoveWeapon(client);
 	}
